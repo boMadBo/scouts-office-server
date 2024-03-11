@@ -32,6 +32,27 @@ export class UserService {
     return user;
   }
 
+  async logout(id: number): Promise<void> {
+    const user = await this.getByIdOrFail(id);
+
+    delete user.token;
+    delete user.refreshToken;
+
+    await user.save();
+  }
+
+  async getByIdOrFail(id: number): Promise<UserEntity> {
+    const user = await this.userRepository.findOne({
+      where: { id },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Пользователь не найден');
+    }
+
+    return user;
+  }
+
   async getByEmailOrFail(email: string): Promise<UserEntity> {
     const user = await this.userRepository.findOne({
       where: { email },

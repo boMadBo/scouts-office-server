@@ -19,8 +19,8 @@ export class UserEntity extends BaseEntity {
   @Column()
   birthDate: Date;
 
-  @Column({ nullable: true })
-  avatarUrl?: string;
+  @Column('bytea', { nullable: true })
+  avatar?: Buffer;
 
   @Column({ nullable: true })
   token?: string;

@@ -20,6 +20,10 @@ export class AuthService {
     return this.updateTokens(user);
   }
 
+  async logout(user: UserEntity): Promise<void> {
+    await this.userService.logout(user.id);
+  }
+
   private async updateTokens(user: UserEntity): Promise<LoginResponse> {
     const tokens = await this.getTokens({ id: user.id, email: user.email });
 
