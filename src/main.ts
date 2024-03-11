@@ -1,8 +1,12 @@
+import { AppModule } from '@app/app.module';
+import { config } from '@app/config';
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 
 async function bootstrap() {
+  // patchTypeORMRepositoryWithBaseRepository();
   const app = await NestFactory.create(AppModule);
-  await app.listen(3014);
+  app.setGlobalPrefix('api');
+  app.enableCors();
+  await app.listen(config.api.port);
 }
 bootstrap();
