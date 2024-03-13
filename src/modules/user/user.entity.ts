@@ -1,7 +1,6 @@
 import { Column, Entity } from 'typeorm';
 import { BaseEntity } from '../../common/base.entity';
 
-
 @Entity({ name: 'users' })
 export class UserEntity extends BaseEntity {
   @Column()
@@ -19,8 +18,8 @@ export class UserEntity extends BaseEntity {
   @Column()
   birthDate: Date;
 
-  @Column('bytea', { nullable: true })
-  avatar?: Buffer;
+  @Column({ nullable: true })
+  avatarUrl?: string;
 
   @Column({ nullable: true })
   token?: string;

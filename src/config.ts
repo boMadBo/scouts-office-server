@@ -6,7 +6,8 @@ const nodeEnv = process.env.NODE_ENV || 'development';
 
 export const config = {
   nodeEnv,
-  baseUri: process.env.BASE_URI || 'https://localhost/',
+  baseUri: process.env.BASE_URI || 'http://localhost',
+  uploadUrl: 'http://localhost:3014/api/uploads/',
   api: {
     port: process.env.PORT || 3014,
     transportPort: process.env.TRANSPORT_PORT || 4000,

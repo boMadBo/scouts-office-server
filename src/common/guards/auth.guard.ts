@@ -10,6 +10,7 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
-    throw new UnauthorizedException('Не авторизован');
+    throw new UnauthorizedException('Not authorized');
   }
 }
+
