@@ -1,10 +1,13 @@
 import { config } from '@app/config';
+import { UpdateUserDto } from '@app/modules/user/dto/update.user.dto';
 import { UserFiltersDto } from '@app/modules/user/dto/user.filters.dto';
-import { ICreateUserParams, IUser } from '@app/modules/user/types';
+import { ICreateUserParams, IUpdateUserParams, IUser } from '@app/modules/user/types';
 import { UserEntity } from '@app/modules/user/user.entity';
 import { UserRepository } from '@app/modules/user/user.repository';
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import fs from 'fs';
+import path from 'path';
 import { MoreThan } from 'typeorm';
 
 @Injectable()
@@ -46,12 +49,62 @@ export class UserService {
     await user.save();
   }
 
+  async getCurrentUserById(id: number): Promise<IUser> {
+    const user = await this.userRepository.findOne({
+      where: { id },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return this.getUserWithAvatar(user);
+  }
+
   async list(filters: UserFiltersDto): Promise<IUser[]> {
     const users = await this.userRepository.find();
     const usersData = users.map(user => {
       return this.getUserWithAvatar(user);
     });
     return usersData;
+  }
+
+  async updateUser(user: UserEntity, params: UpdateUserDto, fileName?: string): Promise<IUser> {
+    let currentUser = await this.userRepository.findOne({
+      where: { id: user.id },
+    });
+
+    if (!currentUser) {
+      throw new NotFoundException('User not found');
+    }
+
+    const entity: IUpdateUserParams = {};
+
+    if (fileName) {
+      if (currentUser && currentUser.avatarUrl) {
+        const filePath = path.join('./src/uploads/', currentUser.avatarUrl.toString());
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+      }
+      entity.avatarUrl = fileName;
+    }
+
+    if (params.password) {
+      entity.password = this.generateHash(params.password);
+    }
+
+    if (params.name) {
+      entity.name = params.name;
+    }
+
+    if (params.email) {
+      entity.email = params.email;
+    }
+
+    currentUser = this.userRepository.merge(currentUser, entity);
+    await currentUser.save();
+    return this.getCurrentUserById(user.id);
   }
 
   async getByIdOrFail(id: number): Promise<UserEntity> {
@@ -76,18 +129,6 @@ export class UserService {
     }
 
     return user;
-  }
-
-  async getCurrentUserById(id: number): Promise<IUser> {
-    const user = await this.userRepository.findOne({
-      where: { id },
-    });
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    return this.getUserWithAvatar(user);
   }
 
   async findByToken(token: string): Promise<UserEntity | undefined> {

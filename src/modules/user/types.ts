@@ -15,3 +15,10 @@ export interface IUser {
   birthDate: Date;
   avatar?: string | undefined;
 }
+
+export interface IUpdateUserParams {
+  email?: string;
+  name?: string;
+  password?: string;
+  avatarUrl?: string;
+}
