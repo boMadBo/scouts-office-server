@@ -1,5 +1,5 @@
 import { config } from '@app/config';
-import { LoginResponse } from '@app/modules/auth/dto/login.response.dto';
+import { LoginResponseDto } from '@app/modules/auth/dto/login.response.dto';
 import { IGetTokens, ITokenPayload } from '@app/modules/auth/types';
 import { UserEntity } from '@app/modules/user/user.entity';
 import { UserService } from '@app/modules/user/user.service';
@@ -14,7 +14,7 @@ export class AuthService {
     private readonly userService: UserService
   ) {}
 
-  async login(email: string, password: string): Promise<LoginResponse> {
+  async login(email: string, password: string): Promise<LoginResponseDto> {
     const user = await this.userService.login(email, password);
 
     return this.updateTokens(user);
@@ -24,7 +24,7 @@ export class AuthService {
     await this.userService.logout(user.id);
   }
 
-  private async updateTokens(user: UserEntity): Promise<LoginResponse> {
+  private async updateTokens(user: UserEntity): Promise<LoginResponseDto> {
     const tokens = await this.getTokens({ id: user.id, email: user.email });
 
     user.token = tokens.accessToken;

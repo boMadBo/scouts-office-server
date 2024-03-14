@@ -1,6 +1,6 @@
 import { IsEmail, IsString } from 'class-validator';
 
-export class LoginRequest {
+export class LoginRequestDto {
   @IsString()
   @IsEmail()
   // @Transform(email => email.toLowerCase())

@@ -1,4 +1,5 @@
-import { Column, Entity } from 'typeorm';
+import { TaskEntity } from '@app/modules/task/task.entity';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../common/base.entity';
 
 @Entity({ name: 'users' })
@@ -32,4 +33,7 @@ export class UserEntity extends BaseEntity {
 
   @Column({ nullable: true })
   refreshTokenExpiredAt?: Date;
+
+  @OneToMany(() => TaskEntity, task => task.user)
+  tasks: TaskEntity[];
 }

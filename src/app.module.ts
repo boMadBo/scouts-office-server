@@ -1,6 +1,7 @@
 import { AuthMiddleware } from '@app/common/middlewares/auth.middleware';
 import { config } from '@app/config';
 import { AuthModule } from '@app/modules/auth/auth.module';
+import { TaskModule } from '@app/modules/task/task.module';
 import { UserModule } from '@app/modules/user/user.module';
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -9,6 +10,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
   imports: [
     AuthModule,
     UserModule,
+    TaskModule,
     TypeOrmModule.forRootAsync({
       useFactory: () => config.typeorm,
     }),
