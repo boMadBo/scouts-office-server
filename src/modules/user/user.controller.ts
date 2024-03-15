@@ -5,11 +5,13 @@ import { CreateUserDto } from '@app/modules/user/dto/create.user.dto';
 import { UpdateUserDto } from '@app/modules/user/dto/update.user.dto';
 import { UserDto } from '@app/modules/user/dto/user.dto';
 import { UserFiltersDto } from '@app/modules/user/dto/user.filters.dto';
+import { UserObservationsDto } from '@app/modules/user/dto/user.observations.dto';
 import { UserEntity } from '@app/modules/user/user.entity';
 import { UserService } from '@app/modules/user/user.service';
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -92,6 +94,22 @@ export class UserController {
     return UserController.mapToDto(updateUser);
   }
 
+  @Post('/observation')
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async createObservation(@AuthUser() user: UserEntity, @Body() dto: UserObservationsDto): Promise<UserDto> {
+    const updateUser = await this.userService.createObservation(user.id, dto);
+    return UserController.mapToDto(updateUser);
+  }
+
+  @Delete('/observation')
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async deleteObservation(@AuthUser() user: UserEntity, @Body() dto: UserObservationsDto): Promise<UserDto> {
+    const updateUser = await this.userService.deleteObservation(user.id, dto);
+    return UserController.mapToDto(updateUser);
+  }
+
   static mapToDto(entity: UserEntity): UserDto {
     const dto = new UserDto();
 
@@ -100,6 +118,7 @@ export class UserController {
     dto.country = entity.country;
     dto.name = entity.name;
     dto.birthDate = entity.birthDate.toString();
+    dto.observations = entity.observations;
     if (entity.avatarUrl) {
       dto.avatar = config.uploadUrl + entity.avatarUrl;
     }

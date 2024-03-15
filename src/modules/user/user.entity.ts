@@ -36,4 +36,7 @@ export class UserEntity extends BaseEntity {
 
   @OneToMany(() => TaskEntity, task => task.user)
   tasks: TaskEntity[];
+
+  @Column({ type: 'jsonb', default: '[]' })
+  observations: string[];
 }

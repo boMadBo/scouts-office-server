@@ -1,6 +1,7 @@
 import { CreateUserDto } from '@app/modules/user/dto/create.user.dto';
 import { UpdateUserDto } from '@app/modules/user/dto/update.user.dto';
 import { UserFiltersDto } from '@app/modules/user/dto/user.filters.dto';
+import { UserObservationsDto } from '@app/modules/user/dto/user.observations.dto';
 import { IUpdateUserParams } from '@app/modules/user/types';
 import { UserEntity } from '@app/modules/user/user.entity';
 import { UserRepository } from '@app/modules/user/user.repository';
@@ -83,6 +84,22 @@ export class UserService {
     currentUser = this.userRepository.merge(currentUser, entity);
     await currentUser.save();
     return this.getByIdOrFail(user.id);
+  }
+
+  async createObservation(userId: number, params: UserObservationsDto): Promise<UserEntity> {
+    const currentUser = await this.getByIdOrFail(userId);
+
+    currentUser.observations = [...currentUser.observations, params.playerId];
+    await currentUser.save();
+    return this.getByIdOrFail(userId);
+  }
+
+  async deleteObservation(userId: number, params: UserObservationsDto): Promise<UserEntity> {
+    const currentUser = await this.getByIdOrFail(userId);
+
+    currentUser.observations = currentUser.observations.filter(item => item !== params.playerId);
+    await currentUser.save();
+    return this.getByIdOrFail(userId);
   }
 
   async getByIdOrFail(id: number): Promise<UserEntity> {

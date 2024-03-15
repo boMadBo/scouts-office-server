@@ -1,5 +1,5 @@
 import { BaseDto } from '@app/common/dto/base.dto';
-import { IsEmail, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsEmail, IsOptional, IsString } from 'class-validator';
 
 export class UserDto extends BaseDto {
   @IsEmail()
@@ -17,4 +17,7 @@ export class UserDto extends BaseDto {
   @IsString()
   @IsOptional()
   avatar?: string;
+
+  @IsArray()
+  observations: string[];
 }
