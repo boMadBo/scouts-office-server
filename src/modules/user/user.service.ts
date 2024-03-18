@@ -126,6 +126,16 @@ export class UserService {
     return user;
   }
 
+  async getByIds(ids: number[]): Promise<UserEntity[]> {
+    const users = await this.userRepository.findByIds(ids);
+
+    if (!users) {
+      throw new NotFoundException('Users not found');
+    }
+
+    return users;
+  }
+
   async findByToken(token: string): Promise<UserEntity | undefined> {
     return this.userRepository.findOne({
       where: {

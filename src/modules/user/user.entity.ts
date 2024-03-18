@@ -1,5 +1,6 @@
+import { ConversationEntity } from '@app/modules/conversation/conversation.entity';
 import { TaskEntity } from '@app/modules/task/task.entity';
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../common/base.entity';
 
 @Entity({ name: 'users' })
@@ -39,4 +40,12 @@ export class UserEntity extends BaseEntity {
 
   @Column({ type: 'jsonb', default: '[]' })
   observations: string[];
+
+  @ManyToMany(() => ConversationEntity, conversation => conversation.users, {
+    nullable: false,
+    onDelete: 'CASCADE',
+    orphanedRowAction: 'delete',
+  })
+  @JoinTable()
+  conversations: ConversationEntity[];
 }
