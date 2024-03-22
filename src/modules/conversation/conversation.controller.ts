@@ -5,7 +5,7 @@ import { ConversationDto } from '@app/modules/conversation/dto/conversation.dto'
 import { CreateConversationDto } from '@app/modules/conversation/dto/create.conversation.dto';
 import { IConversationWithNames } from '@app/modules/conversation/types';
 import { UserEntity } from '@app/modules/user/user.entity';
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from '@nestjs/common';
 
 @Controller('conversations')
 export class ConversationController {
@@ -27,11 +27,19 @@ export class ConversationController {
     return result.map(ConversationController.mapToDto);
   }
 
-  @Get('/:id')
+  // @Get('/:id')
+  // @HttpCode(HttpStatus.OK)
+  // @UseGuards(AuthGuard)
+  // async getOne(@Param('id') id: number, @AuthUser() user: UserEntity): Promise<IConversationWithNames> {
+  //   const result = await this.conversationService.getByIdWithUserName(id, user.id);
+  //   return ConversationController.mapToDto(result);
+  // }
+
+  @Patch('/:id')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
-  async getOne(@Param('id') id: number, @AuthUser() user: UserEntity): Promise<IConversationWithNames> {
-    const result = await this.conversationService.getByIdWithUserName(id, user.id);
+  async update(@Param('id') id: number, @AuthUser() user: UserEntity): Promise<IConversationWithNames> {
+    const result = await this.conversationService.update(id, user.id);
     return ConversationController.mapToDto(result);
   }
 

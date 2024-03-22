@@ -31,7 +31,6 @@ export class ConversationService {
 
   async list(userId: number): Promise<IConversationWithNames[]> {
     const conversations = await this.conversationRepository.getAllByParticipantId(userId);
-
     if (!conversations) {
       throw new NotFoundException('Conversations not found');
     }
@@ -42,7 +41,6 @@ export class ConversationService {
 
   async getByIdWithUserName(id: number, userId: number): Promise<IConversationWithNames> {
     const conversation = await this.getByIdOrFail(id);
-
     const users = await this.userService.getByIds(conversation.participantsIds);
 
     const user = {
@@ -72,5 +70,13 @@ export class ConversationService {
     }
 
     return conversation;
+  }
+
+  async update(id: number, userId: number): Promise<IConversationWithNames> {
+    let conversation = await this.getByIdOrFail(id);
+    conversation = this.conversationRepository.merge(conversation, { updatedAt: new Date() });
+    await conversation.save();
+
+    return this.getByIdWithUserName(conversation.id, userId);
   }
 }

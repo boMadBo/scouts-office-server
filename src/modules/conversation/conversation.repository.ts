@@ -16,7 +16,7 @@ export class ConversationRepository extends BaseRepository<ConversationEntity> {
     return qb
       .where(':id = ANY(conversations.participantsIds)', { id })
       .orderBy({
-        'conversations.updatedAt': 'ASC',
+        'conversations.updatedAt': 'DESC',
       })
       .getMany();
   }
