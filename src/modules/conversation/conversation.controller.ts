@@ -27,14 +27,6 @@ export class ConversationController {
     return result.map(ConversationController.mapToDto);
   }
 
-  // @Get('/:id')
-  // @HttpCode(HttpStatus.OK)
-  // @UseGuards(AuthGuard)
-  // async getOne(@Param('id') id: number, @AuthUser() user: UserEntity): Promise<IConversationWithNames> {
-  //   const result = await this.conversationService.getByIdWithUserName(id, user.id);
-  //   return ConversationController.mapToDto(result);
-  // }
-
   @Patch('/:id')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)

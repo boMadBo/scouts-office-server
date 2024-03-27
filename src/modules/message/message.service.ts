@@ -1,8 +1,10 @@
 import { MessageDto } from '@app/modules/message/dto/message.dto';
 import { MessageEntity } from '@app/modules/message/message.entity';
 import { MessageRepository } from '@app/modules/message/message.repository';
+import { IReadMessage } from '@app/modules/message/types';
 import { UserService } from '@app/modules/user/user.service';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Between } from 'typeorm';
 import { CreateMessageDto } from './dto/create.message.dto';
 
 @Injectable()
@@ -40,6 +42,16 @@ export class MessageService {
       where: { conversationId },
       order: { createdAt: 'DESC' },
     });
+    const allMessages = await Promise.all(messages.map(async item => await this.getMessagesWithUserNames(item)));
+
+    return allMessages;
+  }
+
+  async findAllByUserId(userId: number): Promise<MessageDto[]> {
+    const messages = await this.messageRepository.find({
+      where: [{ recieverId: userId }, { senderId: userId }],
+      order: { createdAt: 'DESC' },
+    });
     return Promise.all(messages.map(async item => await this.getMessagesWithUserNames(item)));
   }
 
@@ -51,5 +63,33 @@ export class MessageService {
       senderName: sender?.name || '',
       recieverName: receiver?.name || '',
     };
+  }
+
+  async readMessage(params: IReadMessage): Promise<void> {
+    const { id, senderId, conversationId } = params;
+    await this.getByIdOrFail(id);
+    const conversationMessages = await this.findAllByConversationId(conversationId);
+    const lastReadedId = Math.max(...conversationMessages.filter(item => item.isReaded).map(item => item.id));
+
+    let messages = await this.messageRepository.find({
+      where: { conversationId, senderId, id: Between(lastReadedId, id) },
+    });
+    messages.forEach(message => {
+      message.isReaded = true;
+    });
+
+    await this.messageRepository.save(messages);
+  }
+
+  async getByIdOrFail(id: number): Promise<MessageEntity> {
+    const conversation = await this.messageRepository.findOne({
+      where: { id },
+    });
+
+    if (!conversation) {
+      throw new NotFoundException('Message not found');
+    }
+
+    return conversation;
   }
 }

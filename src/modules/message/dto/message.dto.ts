@@ -1,5 +1,5 @@
 import { BaseDto } from '@app/common/dto/base.dto';
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class MessageDto extends BaseDto {
   @IsNumber()
@@ -21,4 +21,7 @@ export class MessageDto extends BaseDto {
   @IsString()
   @IsOptional()
   recieverName?: string;
+
+  @IsBoolean()
+  isReaded: boolean;
 }
