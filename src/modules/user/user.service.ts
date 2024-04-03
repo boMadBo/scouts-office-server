@@ -1,6 +1,6 @@
 import { CreateUserDto } from '@app/modules/user/dto/create.user.dto';
 import { UpdateUserDto } from '@app/modules/user/dto/update.user.dto';
-import { UserFiltersDto } from '@app/modules/user/dto/user.filters.dto';
+import { UtcZoneUpdateDto } from '@app/modules/user/dto/update.weather.dto';
 import { UserObservationsDto } from '@app/modules/user/dto/user.observations.dto';
 import { IUpdateUserParams } from '@app/modules/user/types';
 import { UserEntity } from '@app/modules/user/user.entity';
@@ -44,13 +44,13 @@ export class UserService {
 
   async logout(id: number): Promise<void> {
     const user = await this.getByIdOrFail(id);
-    delete user.token;
-    delete user.refreshToken;
+    user.token = undefined;
+    user.refreshToken = undefined;
 
     await user.save();
   }
 
-  async list(filters: UserFiltersDto): Promise<UserEntity[]> {
+  async list(): Promise<UserEntity[]> {
     return this.userRepository.find();
   }
 
@@ -100,6 +100,29 @@ export class UserService {
     currentUser.observations = currentUser.observations.filter(item => item !== params.playerId);
     await currentUser.save();
     return this.getByIdOrFail(userId);
+  }
+
+  async updateUtcZones(user: UserEntity, params: UtcZoneUpdateDto[]): Promise<UserEntity> {
+    const currentUser = await this.getByIdOrFail(user.id);
+
+    params.forEach(param => {
+      const zoneIndex = currentUser.utcZones.findIndex(zone => zone.id === param.id);
+      if (zoneIndex !== -1) {
+        const updatedZone = { ...currentUser.utcZones[zoneIndex] };
+        if (param.isActive !== undefined) {
+          updatedZone.isActive = param.isActive;
+        }
+        if (param.order !== undefined) {
+          updatedZone.order = param.order;
+        }
+        currentUser.utcZones[zoneIndex] = updatedZone;
+      }
+    });
+    currentUser.utcZones.sort((a, b) => a.order - b.order);
+
+    await currentUser.save();
+
+    return this.getByIdOrFail(user.id);
   }
 
   async getByIdOrFail(id: number): Promise<UserEntity> {

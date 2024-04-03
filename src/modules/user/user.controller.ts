@@ -3,8 +3,8 @@ import { AuthGuard } from '@app/common/guards/auth.guard';
 import { config } from '@app/config';
 import { CreateUserDto } from '@app/modules/user/dto/create.user.dto';
 import { UpdateUserDto } from '@app/modules/user/dto/update.user.dto';
+import { UtcZoneUpdateDto } from '@app/modules/user/dto/update.weather.dto';
 import { UserDto } from '@app/modules/user/dto/user.dto';
-import { UserFiltersDto } from '@app/modules/user/dto/user.filters.dto';
 import { UserObservationsDto } from '@app/modules/user/dto/user.observations.dto';
 import { UserEntity } from '@app/modules/user/user.entity';
 import { UserService } from '@app/modules/user/user.service';
@@ -17,7 +17,7 @@ import {
   HttpStatus,
   Patch,
   Post,
-  Query,
+  Put,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -62,8 +62,8 @@ export class UserController {
   @Get('/list')
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
-  async list(@Query() query: UserFiltersDto): Promise<UserDto[]> {
-    const users = await this.userService.list(query);
+  async list(): Promise<UserDto[]> {
+    const users = await this.userService.list();
     return users.map(UserController.mapToDto);
   }
 
@@ -110,6 +110,14 @@ export class UserController {
     return UserController.mapToDto(updateUser);
   }
 
+  @Put('/timezones')
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async updateUtcZones(@AuthUser() user: UserEntity, @Body() dto: UtcZoneUpdateDto[]): Promise<UserDto> {
+    const updateUser = await this.userService.updateUtcZones(user, dto);
+    return UserController.mapToDto(updateUser);
+  }
+
   static mapToDto(entity: UserEntity): UserDto {
     const dto = new UserDto();
 
@@ -119,6 +127,9 @@ export class UserController {
     dto.name = entity.name;
     dto.birthDate = entity.birthDate.toString();
     dto.observations = entity.observations;
+    dto.token = entity.token;
+    dto.refreshToken = entity.refreshToken;
+    dto.utcZones = entity.utcZones;
     if (entity.avatarUrl) {
       dto.avatar = config.uploadUrl + entity.avatarUrl;
     }

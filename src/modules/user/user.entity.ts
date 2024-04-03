@@ -1,5 +1,7 @@
 import { ConversationEntity } from '@app/modules/conversation/conversation.entity';
 import { TaskEntity } from '@app/modules/task/task.entity';
+import { defaultUtcZones } from '@app/modules/user/helpers';
+import { IUtcZone } from '@app/modules/user/types';
 import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../common/base.entity';
 
@@ -48,4 +50,7 @@ export class UserEntity extends BaseEntity {
   })
   @JoinTable()
   conversations: ConversationEntity[];
+
+  @Column({ type: 'jsonb', default: defaultUtcZones })
+  utcZones: IUtcZone[];
 }

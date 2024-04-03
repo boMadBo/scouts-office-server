@@ -1,4 +1,5 @@
 import { BaseDto } from '@app/common/dto/base.dto';
+import { IUtcZone } from '@app/modules/user/types';
 import { IsArray, IsEmail, IsOptional, IsString } from 'class-validator';
 
 export class UserDto extends BaseDto {
@@ -20,4 +21,15 @@ export class UserDto extends BaseDto {
 
   @IsArray()
   observations: string[];
+
+  @IsString()
+  @IsOptional()
+  token?: string;
+
+  @IsString()
+  @IsOptional()
+  refreshToken?: string;
+
+  @IsArray()
+  utcZones: IUtcZone[];
 }
