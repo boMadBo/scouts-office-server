@@ -1,3 +1,5 @@
+import { OutwardService } from '@app/modules/outward/outward.service';
+import { IPlayer } from '@app/modules/outward/types';
 import { CreateUserDto } from '@app/modules/user/dto/create.user.dto';
 import { UpdateUserDto } from '@app/modules/user/dto/update.user.dto';
 import { UtcZoneUpdateDto } from '@app/modules/user/dto/update.weather.dto';
@@ -5,7 +7,13 @@ import { UserObservationsDto } from '@app/modules/user/dto/user.observations.dto
 import { IUpdateUserParams } from '@app/modules/user/types';
 import { UserEntity } from '@app/modules/user/user.entity';
 import { UserRepository } from '@app/modules/user/user.repository';
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import fs from 'fs';
 import path from 'path';
@@ -13,7 +21,10 @@ import { MoreThan } from 'typeorm';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly outwardService: OutwardService
+  ) {}
 
   async create({ password, birthDate, ...user }: CreateUserDto, fileName?: string): Promise<UserEntity> {
     const existed = await this.userRepository.findOne({ where: { email: user.email } });
@@ -94,6 +105,11 @@ export class UserService {
     return this.getByIdOrFail(userId);
   }
 
+  async observationsList(userId: number): Promise<IPlayer[]> {
+    const currentUser = await this.getByIdOrFail(userId);
+    return Promise.all(currentUser.observations.map(async item => this.outwardService.getPlayer(item)));
+  }
+
   async deleteObservation(userId: number, params: UserObservationsDto): Promise<UserEntity> {
     const currentUser = await this.getByIdOrFail(userId);
 
@@ -166,6 +182,18 @@ export class UserService {
         tokenExpiredAt: MoreThan(new Date()),
       },
     });
+  }
+
+  async getUserByRefreshToken(refreshToken: string): Promise<UserEntity> {
+    const user = await this.userRepository.findOne({
+      where: { refreshToken },
+    });
+
+    if (!user || (user.refreshTokenExpiredAt && user.refreshTokenExpiredAt < new Date())) {
+      throw new UnauthorizedException('Incorrect refresh token');
+    }
+
+    return user;
   }
 
   generateHash(password: string): string {

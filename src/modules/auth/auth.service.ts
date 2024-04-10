@@ -20,6 +20,12 @@ export class AuthService {
     return this.updateTokens(user);
   }
 
+  async refreshTokens(refreshToken: string): Promise<LoginResponseDto> {
+    const user = await this.userService.getUserByRefreshToken(refreshToken);
+
+    return this.updateTokens(user);
+  }
+
   async logout(user: UserEntity): Promise<void> {
     await this.userService.logout(user.id);
   }

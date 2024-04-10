@@ -1,6 +1,7 @@
 import { AuthUser } from '@app/common/decorators/authUser.decorator';
 import { AuthGuard } from '@app/common/guards/auth.guard';
 import { config } from '@app/config';
+import { IPlayer } from '@app/modules/outward/types';
 import { CreateUserDto } from '@app/modules/user/dto/create.user.dto';
 import { UpdateUserDto } from '@app/modules/user/dto/update.user.dto';
 import { UtcZoneUpdateDto } from '@app/modules/user/dto/update.weather.dto';
@@ -8,6 +9,7 @@ import { UserDto } from '@app/modules/user/dto/user.dto';
 import { UserObservationsDto } from '@app/modules/user/dto/user.observations.dto';
 import { UserEntity } from '@app/modules/user/user.entity';
 import { UserService } from '@app/modules/user/user.service';
+import { multerOptions } from '@app/multer.options';
 import {
   Body,
   Controller,
@@ -23,29 +25,13 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import path from 'path';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('/registration')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './src/uploads/',
-        filename: (req, file, cb) => {
-          if (file) {
-            const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-            const fileExtension = path.extname(file.originalname);
-            const fileName = uniqueSuffix + fileExtension;
-            cb(null, fileName);
-          }
-        },
-      }),
-    })
-  )
+  @UseInterceptors(FileInterceptor('file', multerOptions))
   async create(@Body() createUserDto: CreateUserDto, @UploadedFile() file: Express.Multer.File): Promise<UserDto> {
     const user = await this.userService.create(createUserDto, file?.filename);
     return UserController.mapToDto(user);
@@ -70,21 +56,7 @@ export class UserController {
   @Patch()
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './src/uploads/',
-        filename: (req, file, cb) => {
-          if (file) {
-            const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-            const fileExtension = path.extname(file.originalname);
-            const fileName = uniqueSuffix + fileExtension;
-            cb(null, fileName);
-          }
-        },
-      }),
-    })
-  )
+  @UseInterceptors(FileInterceptor('file', multerOptions))
   async updateUser(
     @AuthUser() user: UserEntity,
     @Body() dto: UpdateUserDto,
@@ -100,6 +72,13 @@ export class UserController {
   async createObservation(@AuthUser() user: UserEntity, @Body() dto: UserObservationsDto): Promise<UserDto> {
     const updateUser = await this.userService.createObservation(user.id, dto);
     return UserController.mapToDto(updateUser);
+  }
+
+  @Get('/observation')
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async observationsList(@AuthUser() user: UserEntity): Promise<IPlayer[]> {
+    return this.userService.observationsList(user.id);
   }
 
   @Delete('/observation')

@@ -3,8 +3,10 @@ import { config } from '@app/config';
 import { AuthModule } from '@app/modules/auth/auth.module';
 import { ConversationModule } from '@app/modules/conversation/conversation.module';
 import { EventModule } from '@app/modules/event/event.module';
+import { OutwardModule } from '@app/modules/outward/outward.module';
 import { TaskModule } from '@app/modules/task/task.module';
 import { UserModule } from '@app/modules/user/user.module';
+import { HttpModule } from '@nestjs/axios';
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MessageModule } from './modules/message/message.module';
@@ -17,6 +19,8 @@ import { MessageModule } from './modules/message/message.module';
     ConversationModule,
     MessageModule,
     EventModule,
+    OutwardModule,
+    HttpModule,
     TypeOrmModule.forRootAsync({
       useFactory: () => config.typeorm,
     }),
