@@ -6,9 +6,8 @@ import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConne
 const nodeEnv = process.env.NODE_ENV || 'development';
 let path = nodeEnv === 'development' ? '.env' : `.env.${nodeEnv}`;
 
-dotenv.config({
-  path,
-});
+
+dotenv.config({ path });
 
 export const config = {
   nodeEnv,
@@ -23,6 +22,9 @@ export const config = {
     accessExpiration: Number(process.env.JWT_ACCESS_EXPIRATION || 3600),
     refreshExpiration: Number(process.env.JWT_REFRESH_EXPIRATION || 3600 * 24 * 30),
     algorithm: 'HS256',
+  },
+  db: {
+    url: process.env.POSTGRES_URL,
   },
   typeorm: {
     type: 'postgres',
