@@ -37,22 +37,30 @@ export class MessageService {
     return this.getMessagesWithUserNames(message);
   }
 
-  async findAllByConversationId(conversationId: number): Promise<MessageDto[]> {
+  async findAllByConversationId(conversationId: number, limit: number = 20): Promise<MessageDto[]> {
     const messages = await this.messageRepository.find({
       where: { conversationId },
       order: { createdAt: 'DESC' },
+      take: limit,
     });
-    const allMessages = await Promise.all(messages.map(async item => await this.getMessagesWithUserNames(item)));
-
-    return allMessages;
+    return Promise.all(messages.map(async item => await this.getMessagesWithUserNames(item)));
   }
 
-  async findAllByUserId(userId: number): Promise<MessageDto[]> {
+  async getUnreadMessages(userId: number): Promise<MessageDto[]> {
     const messages = await this.messageRepository.find({
-      where: [{ recieverId: userId }, { senderId: userId }],
+      where: { recieverId: userId, isReaded: false },
       order: { createdAt: 'DESC' },
     });
     return Promise.all(messages.map(async item => await this.getMessagesWithUserNames(item)));
+  }
+
+  async findLastMessage(userId: number): Promise<MessageDto> {
+    const message = await this.messageRepository.find({
+      where: [{ recieverId: userId }, { senderId: userId }],
+      order: { createdAt: 'DESC' },
+      take: 1,
+    });
+    return this.getMessagesWithUserNames(message[0]);
   }
 
   async getMessagesWithUserNames(message: MessageEntity): Promise<MessageDto> {

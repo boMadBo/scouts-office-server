@@ -33,22 +33,46 @@ export class EventGateway implements OnModuleInit {
     const { recieverId, senderId } = body;
     const newMessage = await this.messageService.create(body);
     const roomClients = this.messageService.getRoomClients(recieverId, senderId);
-    const allMessages = await this.messageService.findAllByUserId(body.recieverId);
-    socket.emit('allMessages', allMessages);
+
+    const unreadMessages = await this.messageService.getUnreadMessages(body.senderId);
+    socket.emit('unreadMessages', unreadMessages);
+    const messages = await this.messageService.findAllByConversationId(body.conversationId);
+    socket.emit('conversationMessages', messages);
+    const message = await this.messageService.findLastMessage(body.recieverId);
+    socket.emit('lastMessage', message);
     this.server.to(roomClients).emit('onMessage', newMessage);
   }
 
-  @SubscribeMessage('findAllMessages')
-  async getAllMessages(@MessageBody() body: { userId: number }, @ConnectedSocket() socket: Socket): Promise<void> {
-    const messages = await this.messageService.findAllByUserId(body.userId);
-    socket.emit('allMessages', messages);
+  @SubscribeMessage('findConversationMessages')
+  async getConversationMessages(
+    @MessageBody() body: { conversationId: number; limit: number },
+    @ConnectedSocket() socket: Socket
+  ): Promise<void> {
+    const { conversationId, limit } = body;
+    const messages = await this.messageService.findAllByConversationId(conversationId, limit);
+    socket.emit('conversationMessages', messages);
+  }
+
+  @SubscribeMessage('findUnreadMessages')
+  async getUnreadMessages(@MessageBody() body: { userId: number }, @ConnectedSocket() socket: Socket): Promise<void> {
+    const messages = await this.messageService.getUnreadMessages(body.userId);
+    socket.emit('unreadMessages', messages);
+  }
+
+  @SubscribeMessage('findLastMessage')
+  async findLastMessage(@MessageBody() body: { userId: number }, @ConnectedSocket() socket: Socket): Promise<void> {
+    const message = await this.messageService.findLastMessage(body.userId);
+    socket.emit('lastMessage', message);
   }
 
   @SubscribeMessage('updateMessage')
   async readMessage(@MessageBody() body: IReadMessage, @ConnectedSocket() socket: Socket): Promise<void> {
     await this.messageService.readMessage(body);
-    const allMessages = await this.messageService.findAllByUserId(body.userId);
-    socket.emit('allMessages', allMessages);
+
+    const unreadMessages = await this.messageService.getUnreadMessages(body.userId);
+    socket.emit('unreadMessages', unreadMessages);
+    const messages = await this.messageService.findAllByConversationId(body.conversationId);
+    socket.emit('conversationMessages', messages);
     socket.emit('readMessage', () => {});
   }
 }
