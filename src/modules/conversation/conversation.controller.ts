@@ -6,15 +6,22 @@ import { CreateConversationDto } from '@app/modules/conversation/dto/create.conv
 import { IConversationWithNames } from '@app/modules/conversation/types';
 import { UserEntity } from '@app/modules/user/user.entity';
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller('conversations')
+@ApiTags('Conversations')
 export class ConversationController {
   constructor(private readonly conversationService: ConversationService) {}
 
   @Post()
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
-  async create(@AuthUser() user: UserEntity, @Body() dto: CreateConversationDto): Promise<IConversationWithNames> {
+  @ApiBearerAuth()
+  @ApiOkResponse({
+    type: ConversationDto,
+    description: 'Create new conversation',
+  })
+  async create(@AuthUser() user: UserEntity, @Body() dto: CreateConversationDto): Promise<ConversationDto> {
     const result = await this.conversationService.create(dto, user.id);
     return ConversationController.mapToDto(result);
   }
@@ -22,7 +29,11 @@ export class ConversationController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
-  async list(@AuthUser() user: UserEntity): Promise<IConversationWithNames[]> {
+  @ApiBearerAuth()
+  @ApiOkResponse({
+    description: 'Get conversations',
+  })
+  async list(@AuthUser() user: UserEntity): Promise<ConversationDto[]> {
     const result = await this.conversationService.list(user.id);
     return result.map(ConversationController.mapToDto);
   }
@@ -30,7 +41,12 @@ export class ConversationController {
   @Patch('/:id')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
-  async update(@Param('id') id: number, @AuthUser() user: UserEntity): Promise<IConversationWithNames> {
+  @ApiBearerAuth()
+  @ApiOkResponse({
+    type: ConversationDto,
+    description: 'Update last used conversation',
+  })
+  async update(@Param('id') id: number, @AuthUser() user: UserEntity): Promise<ConversationDto> {
     const result = await this.conversationService.update(id, user.id);
     return ConversationController.mapToDto(result);
   }

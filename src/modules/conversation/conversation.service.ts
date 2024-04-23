@@ -15,7 +15,7 @@ export class ConversationService {
 
   @Transactional()
   async create({ participantId }: CreateConversationDto, userId: number): Promise<IConversationWithNames> {
-    const conversation = await this.conversationRepository.getByParticipantId(participantId);
+    const conversation = await this.conversationRepository.getByParticipantId(participantId, userId);
 
     if (conversation) {
       return conversation;

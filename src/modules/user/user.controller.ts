@@ -25,8 +25,10 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller('user')
+@ApiTags('User')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -40,6 +42,11 @@ export class UserController {
   @Get()
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOkResponse({
+    type: UserDto,
+    description: 'Get me',
+  })
   async getCurrent(@AuthUser() user: UserEntity): Promise<UserDto> {
     const currentUser = await this.userService.getByIdOrFail(user.id);
     return UserController.mapToDto(currentUser);
@@ -48,6 +55,10 @@ export class UserController {
   @Get('/list')
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOkResponse({
+    description: 'Get users',
+  })
   async list(): Promise<UserDto[]> {
     const users = await this.userService.list();
     return users.map(UserController.mapToDto);
@@ -56,6 +67,11 @@ export class UserController {
   @Patch()
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOkResponse({
+    type: UserDto,
+    description: 'Update user data',
+  })
   @UseInterceptors(FileInterceptor('file', multerOptions))
   async updateUser(
     @AuthUser() user: UserEntity,
@@ -69,6 +85,11 @@ export class UserController {
   @Post('/observation')
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOkResponse({
+    type: UserDto,
+    description: 'Observe new player',
+  })
   async createObservation(@AuthUser() user: UserEntity, @Body() dto: UserObservationsDto): Promise<UserDto> {
     const updateUser = await this.userService.createObservation(user.id, dto);
     return UserController.mapToDto(updateUser);
@@ -77,6 +98,10 @@ export class UserController {
   @Get('/observation')
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOkResponse({
+    description: 'Get observable players',
+  })
   async observationsList(@AuthUser() user: UserEntity): Promise<IPlayer[]> {
     return this.userService.observationsList(user.id);
   }
@@ -84,6 +109,11 @@ export class UserController {
   @Delete('/observation')
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOkResponse({
+    type: UserDto,
+    description: 'Cancel observe player',
+  })
   async deleteObservation(@AuthUser() user: UserEntity, @Body() dto: UserObservationsDto): Promise<UserDto> {
     const updateUser = await this.userService.deleteObservation(user.id, dto);
     return UserController.mapToDto(updateUser);
@@ -92,6 +122,11 @@ export class UserController {
   @Put('/timezones')
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOkResponse({
+    type: UserDto,
+    description: 'Edit own timezones',
+  })
   async updateUtcZones(@AuthUser() user: UserEntity, @Body() dto: UtcZoneUpdateDto[]): Promise<UserDto> {
     const updateUser = await this.userService.updateUtcZones(user, dto);
     return UserController.mapToDto(updateUser);

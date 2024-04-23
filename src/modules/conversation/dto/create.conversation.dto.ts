@@ -1,6 +1,6 @@
-import { IsArray } from 'class-validator';
+import { IsNumber } from 'class-validator';
 
 export class CreateConversationDto {
-  @IsArray()
+  @IsNumber()
   participantId: number;
 }

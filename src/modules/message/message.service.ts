@@ -77,7 +77,10 @@ export class MessageService {
     const { id, senderId, conversationId } = params;
     await this.getByIdOrFail(id);
     const conversationMessages = await this.findAllByConversationId(conversationId);
-    const lastReadedId = Math.max(...conversationMessages.filter(item => item.isReaded).map(item => item.id));
+    const isLastReadedId = conversationMessages.filter(item => item.isReaded).map(item => item.id);
+    const lastReadedId = isLastReadedId.length
+      ? Math.max(...isLastReadedId)
+      : conversationMessages[conversationMessages.length - 1].id;
 
     let messages = await this.messageRepository.find({
       where: { conversationId, senderId, id: Between(lastReadedId, id) },

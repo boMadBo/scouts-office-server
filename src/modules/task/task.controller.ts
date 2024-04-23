@@ -19,14 +19,21 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller('tasks')
+@ApiTags('Tasks')
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
   @Post()
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOkResponse({
+    type: TaskDto,
+    description: 'Create new task',
+  })
   async create(@AuthUser() user: UserEntity, @Body() dto: CreateTaskDto): Promise<TaskDto> {
     const task = await this.taskService.create(dto, user.id);
     return TaskController.mapToDto(task);
@@ -35,6 +42,10 @@ export class TaskController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOkResponse({
+    description: 'Get tasks list',
+  })
   async list(@AuthUser() user: UserEntity): Promise<TaskDto[]> {
     const tasks = await this.taskService.list(user.id);
     return tasks.map(TaskController.mapToDto);
@@ -43,6 +54,11 @@ export class TaskController {
   @Patch('/:id')
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOkResponse({
+    type: TaskDto,
+    description: 'Mark task completed',
+  })
   async updateTask(
     @AuthUser() user: UserEntity,
     @Body() dto: UpdateTaskDto,
@@ -55,6 +71,10 @@ export class TaskController {
   @Delete('/:id')
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiBearerAuth()
+  @ApiOkResponse({
+    description: 'Delete task',
+  })
   async deleteTask(@AuthUser() user: UserEntity, @Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.taskService.deleteTask(user.id, id);
   }

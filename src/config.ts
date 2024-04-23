@@ -11,7 +11,7 @@ dotenv.config({ path });
 
 export const config = {
   nodeEnv,
-  baseUri: process.env.BASE_URI || 'http://localhost',
+  baseUrl: process.env.BASE_URI || 'http://localhost',
   uploadUrl: 'http://localhost:3014/api/uploads/',
   api: {
     port: process.env.PORT || 3014,

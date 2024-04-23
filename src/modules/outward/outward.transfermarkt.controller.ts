@@ -12,8 +12,10 @@ import {
   IValueHistory,
 } from '@app/modules/outward/types';
 import { Controller, Get, HttpCode, HttpStatus, Param, Query } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('transfermarkt')
+@ApiTags('Transfermarkt')
 export class OutwardTransfermarktController {
   constructor(private readonly outwardService: OutwardService) {}
 
