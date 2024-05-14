@@ -4,17 +4,42 @@ This is an application for monitoring football players, analyzing their statisti
 
 Visit the website: in development....
 
-Getting Started
+___
 
-### To run the Scouts App locally, follow these steps:
+### Getting Started
 
-1. Clone the repository:
+To run the Scouts App locally, follow these steps:
+
++ Clone the repository:
+   ```
    git clone https://github.com/boMadBo/scouts-office-server.git
+   ```
 
-2. install the required dependencies:
++ install the required dependencies:
+   ```
    yarn install
+   ```
 
-3. ### yarn start:dev
++  to run
+   ```
+   yarn start:dev
+   ```
 
 
 ### Swagger docs http://localhost:3014/api/doc/
+
+___
+
+### API Usage
+
++ The App uses the https://transfermarket.p.rapidapi.com/ to fetch football data.
+
++ The App uses the https://open-meteo.com/ to fetch weather data.
+
++ The App uses the https://api64.ipify.org to fetch current IP data.
+
++ The App uses the https://ipinfo.io/ to fetch current location data.
+
++ The App uses the https://restcountries.com/ to fetch current flags of contries.
+
++ The App uses the https://api.coinbase.com/v2/ to fetch current usd and btc values.

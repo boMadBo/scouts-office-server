@@ -1,6 +1,5 @@
 version: '3'
 services:
-
   database:
     image: postgres:14.10-alpine
     restart: always
@@ -14,6 +13,7 @@ services:
       - '5432:5432'
     volumes:
       - ./var/database/postgres/data:/var/lib/postgresql/data
+      - ./var/database/postgres/initdb:/docker-entrypoint-initdb.d
 
   adminer:
     image: adminer
@@ -24,6 +24,3 @@ services:
 volumes:
   database:
     external: true
-
-
-

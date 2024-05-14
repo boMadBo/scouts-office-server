@@ -3,13 +3,10 @@
 /node_modules
 .env
 .env.development
+/var
 
 # OS
 .DS_Store
-
-# Tests
-/coverage
-/.nyc_output
 
 # IDEs and editors
 /.idea
@@ -26,8 +23,3 @@
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-
-# Docker compose ganarated files
-dist
-storage
-var
