@@ -1,6 +1,7 @@
 import { config } from '@app/config';
 import { LoginResponseDto } from '@app/modules/auth/dto/login.response.dto';
 import { IGetTokens, ITokenPayload } from '@app/modules/auth/types';
+import { OutwardService } from '@app/modules/outward/outward.service';
 import { UserEntity } from '@app/modules/user/user.entity';
 import { UserService } from '@app/modules/user/user.service';
 import { Injectable } from '@nestjs/common';
@@ -11,11 +12,22 @@ import moment from 'moment';
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly userService: UserService
+    private readonly userService: UserService,
+    private readonly outwardService: OutwardService
   ) {}
 
   async login(email: string, password: string): Promise<LoginResponseDto> {
     const user = await this.userService.login(email, password);
+
+    return this.updateTokens(user);
+  }
+
+  async googleLogin(authCode: string): Promise<LoginResponseDto> {
+    const data = await this.outwardService.sendGoogleLoginData(authCode);
+    const { access_token } = data;
+
+    const userInfoResponse = await this.outwardService.getUserGoogleData(access_token);
+    const user = await this.userService.getByEmailOrFail(userInfoResponse.email);
 
     return this.updateTokens(user);
   }

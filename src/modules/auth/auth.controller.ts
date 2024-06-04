@@ -1,6 +1,7 @@
 import { AuthUser } from '@app/common/decorators/authUser.decorator';
 import { AuthGuard } from '@app/common/guards/auth.guard';
 import { AuthService } from '@app/modules/auth/auth.service';
+import { LoginGoogleDto } from '@app/modules/auth/dto/login.google.dto';
 import { LoginRequestDto } from '@app/modules/auth/dto/login.request.dto';
 import { LoginResponseDto } from '@app/modules/auth/dto/login.response.dto';
 import { RefreshRequestDto } from '@app/modules/auth/dto/refresh.request.dto';
@@ -21,6 +22,12 @@ export class AuthController {
   })
   async login(@Body() { email, password }: LoginRequestDto): Promise<LoginResponseDto> {
     return this.authService.login(email.toLowerCase(), password);
+  }
+
+  @Post('/login/google')
+  @HttpCode(HttpStatus.OK)
+  async googleLogin(@Body() { code }: LoginGoogleDto): Promise<LoginResponseDto> {
+    return this.authService.googleLogin(code);
   }
 
   @Put('/refresh')

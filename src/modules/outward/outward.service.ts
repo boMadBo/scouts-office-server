@@ -30,6 +30,30 @@ import moment from 'moment';
 export class OutwardService {
   constructor(private httpService: HttpService) {}
 
+  async sendGoogleLoginData(authCode: string): Promise<any> {
+    return this.httpService
+      .post('https://oauth2.googleapis.com/token', {
+        code: authCode,
+        client_id: config.google.clientId,
+        client_secret: config.google.clientSecret,
+        redirect_uri: config.google.redirectUri,
+        grant_type: 'authorization_code',
+      })
+      .toPromise()
+      .then(response => response.data);
+  }
+
+  async getUserGoogleData(accessToken: string): Promise<any> {
+    return this.httpService
+      .get('https://www.googleapis.com/oauth2/v3/userinfo', {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      })
+      .toPromise()
+      .then(response => response.data);
+  }
+
   async getFlag(country: string): Promise<ICountryFlag> {
     return this.httpService
       .get(`${config.outward.flag.url}/${country}`)

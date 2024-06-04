@@ -43,6 +43,10 @@ export class MessageService {
       order: { createdAt: 'DESC' },
       take: limit,
     });
+
+    if (!messages.length) {
+      return [];
+    }
     return Promise.all(messages.map(async item => await this.getMessagesWithUserNames(item)));
   }
 
@@ -51,16 +55,22 @@ export class MessageService {
       where: { recieverId: userId, isReaded: false },
       order: { createdAt: 'DESC' },
     });
+
+    if (!messages.length) {
+      return [];
+    }
     return Promise.all(messages.map(async item => await this.getMessagesWithUserNames(item)));
   }
 
-  async findLastMessage(userId: number): Promise<MessageDto> {
-    const message = await this.messageRepository.find({
+  async findLastMessage(userId: number): Promise<MessageDto | undefined> {
+    const messages = await this.messageRepository.find({
       where: [{ recieverId: userId }, { senderId: userId }],
       order: { createdAt: 'DESC' },
       take: 1,
     });
-    return this.getMessagesWithUserNames(message[0]);
+
+    if (!messages.length) return;
+    return this.getMessagesWithUserNames(messages[0]);
   }
 
   async getMessagesWithUserNames(message: MessageEntity): Promise<MessageDto> {
